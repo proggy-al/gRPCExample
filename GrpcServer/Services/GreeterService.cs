@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
@@ -15,29 +16,31 @@ namespace GrpcServer.Services
 
         public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
+            var httpContext = context.GetHttpContext();
             var helloReply = new HelloReply
             { 
-                Message = "Hello " + request.Name
+                Message = "Hello " + request.Name + ": " + request.Age,
+                Age = 100
             };
 
+            // throw new NullReferenceException();
             // context.Deadline //KeepAlive
-            // context.GetHttpContext
 
             return Task.FromResult(helloReply);
         }
 
-        public override Task<HelloReply> SayHello1(HelloRequest request, ServerCallContext context)
-        {
-            var helloReply = new HelloReply
-            {
-                Message = "Hello " + request.Name
-            };
+        // public override Task<HelloReply> SayHello1(HelloRequest request, ServerCallContext context)
+        // {
+        //     var helloReply = new HelloReply
+        //     {
+        //         Message = "Hello " + request.Name
+        //     };
 
-            // context.Deadline //KeepAlive
-            // context.GetHttpContext
+        //     // context.Deadline //KeepAlive
+        //     // context.GetHttpContext
 
-            return Task.FromResult(helloReply);
-        }
+        //     return Task.FromResult(helloReply);
+        // }
 
         public override async Task BidiHello
         (
@@ -48,6 +51,7 @@ namespace GrpcServer.Services
         {
             await foreach (var request in requestStream.ReadAllAsync())
             {
+                Console.WriteLine(request.Name);
                 var helloReply = new HelloReply
                 {
                     Message = "Hello " + request.Name
